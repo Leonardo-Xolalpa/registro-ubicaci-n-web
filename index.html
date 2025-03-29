@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Enviar Ubicación</title>
+</head>
+<body>
+  <h1>Enviar mi Ubicación</h1>
+  <button id="sendLocation">Enviar mi ubicación</button>
+  <div id="status"></div>
+  <script>
+    // Al hacer clic en el botón, se intenta obtener la ubicación del usuario.
+    document.getElementById("sendLocation").addEventListener("click", function(){
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(sendLocation, showError);
+      } else {
+        document.getElementById("status").innerHTML = "Geolocalización no soportada por este navegador.";
+      }
+    });
+    
+    // Función para enviar la ubicación al endpoint de Apps Script.
+    function sendLocation(position) {
+      var lat = position.coords.latitude;
+      var lng = position.coords.longitude;
+      
+      // REEMPLAZA la URL de abajo con la URL de tu Web App (endpoint de Apps Script).
+      var url = "https://script.google.com/macros/s/TU_SCRIPT_ID/exec";
+      
+      fetch(url, {
+        method: "POST",
+        mode: "no-cors", // Para evitar problemas de CORS
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: "lat=" + encodeURIComponent(lat) + "&lng=" + encodeURIComponent(lng)
+      })
+      .then(response => {
+        document.getElementById("status").innerHTML = "Ubicación enviada: " + lat + ", " + lng;
+      })
+      .catch(error => {
+        document.getElementById("status").innerHTML = "Error al enviar la ubicación: " + error;
+      });
+    }
+    
+    // Maneja posibles errores al obtener la ubicación.
+    function showError(error) {
+      document.getElementById("status").innerHTML = "Error al obtener la ubicación: " + error.message;
+    }
+  </script>
+</body>
+</html>
